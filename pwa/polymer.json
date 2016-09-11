@@ -1,11 +1,11 @@
 {
   "entrypoint": "index.html",
-  "shell": "src/my-app.html",
+  "shell": "src/music-app.html",
   "fragments": [
-    "src/my-view1.html",
-    "src/my-view2.html",
-    "src/my-view3.html",
-    "src/my-view404.html"
+    "src/my-404.html",
+    "src/my-about.html",
+    "src/my-add.html",
+    "src/my-queue.html"
   ],
   "sourceGlobs": [
    "src/**/*",

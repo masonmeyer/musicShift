@@ -9,8 +9,8 @@ import spotify
 import requests
 
 
-ENDPOINT = 'http://10.251.75.147:8083/device/next_track'
-SKIP_ENDPOINT = 'http://10.251.75.147:8083/device/check_skip'
+ENDPOINT = 'https://musicshift-backend.herokuapp.com/device/next_track'
+SKIP_ENDPOINT = 'https://musicshift-backend.herokuapp.com/device/check_skip'
 
 # Assuming a spotify_appkey.key in the current dir
 session = spotify.Session()
