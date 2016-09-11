@@ -39,6 +39,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       handle-as="json"
       last-response="{{queue}}"
       on-response="_onResponse"
+      on-error="_onResponse"
     ></iron-ajax>
 
     <paper-fab class="fab" icon="add" on-tap="handleAddTap"></paper-fab>
