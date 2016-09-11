@@ -1,0 +1,72 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="track-voter">
+  <template>
+    <style include="shared-styles">
+      .active-vote {
+        color: var(--app-primary-color);
+      }
+    </style>
+
+    <iron-ajax
+      id="skipAjax"
+      url="http://10.251.75.147:8083/skip"
+      method="POST"
+      content-type="application/x-www-form-urlencoded"
+    ></iron-ajax>
+
+    <iron-ajax
+      id="upvoteAjax"
+      url="http://10.251.75.147:8083/upvote"
+      method="POST"
+      content-type="application/x-www-form-urlencoded"
+    ></iron-ajax>
+
+    <iron-ajax
+      id="downvoteAjax"
+      url="http://10.251.75.147:8083/downvote"
+      method="POST"
+      content-type="application/x-www-form-urlencoded"
+    ></iron-ajax>
+
+    <div>
+      <template is="dom-if" if="{{item.playing}}">
+        Now playing <a style="cursor: pointer;" on-tap="handleSkip">(skip)</a>
+      </template>
+      <template is="dom-if" if="{{!item.playing}}" id="votey">
+        <div style="cursor: pointer;" class$="{{_getVoteClass(upvoted)}}" on-tap="vote">
+          <paper-ripple></paper-ripple>
+          {{item.votes}} ▲
+        </span>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'track-voter',
+      _getVoteClass: function (upvoted) {
+        return upvoted ? 'active-vote' : '';
+      },
+
+      handleSkip: function () {
+        this.$.skipAjax.generateRequest();
+      },
+
+      vote: function () {
+        if (this.upvoted) {
+          this.fire('vote', { id: this.item.id, value: 0 });
+          this.$.downvoteAjax.body = { id: this.item.id };
+          this.$.downvoteAjax.generateRequest();
+        } else {
+          this.fire('vote', { id: this.item.id, value: 1 });
+          this.$.upvoteAjax.body = { id: this.item.id };
+          this.$.upvoteAjax.generateRequest();
+        }
+      }
+    });
+  </script>
+</dom-module>

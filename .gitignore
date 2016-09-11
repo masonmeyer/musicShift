@@ -1,0 +1,7 @@
+.DS_Store
+.env
+node_modules
+tmp
+venv
+bower_components
+spotify_appkey.key
