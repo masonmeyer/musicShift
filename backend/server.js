@@ -16,8 +16,10 @@ var app = require('koa')();
 var router = require('koa-router')();
 var bodyParser = require('koa-body')();
 var cors = require('koa-cors')({ origin: true });
-var IO = require('koa-socket')
-var io = new IO();
+
+// FIXME - why u storin state in the main process fam?
+// because u cray.
+var pendingSkip = false;
 
 function serializeTrack(track, spotifyTrack) {
   if (!spotifyTrack) {
@@ -114,7 +116,7 @@ router.post('/search', bodyParser, function *(next) {
 });
 
 router.post('/skip', function *(next) {
-  io.broadcast('skip');
+  pendingSkip = true;
   this.body = { success: true };
 });
 
@@ -144,14 +146,14 @@ router.post('/device/next_track', function *(next) {
   }
 });
 
+router.post('/device/check_skip', function *(next) {
+  this.body = { skip: pendingSkip };
+  pendingSkip = false;
+});
+
 app
   .use(router.routes())
   .use(router.allowedMethods());
-
-io.attach(app);
-io.on('join', (ctx, data) => {
-  console.log('join event fired', data);
-});
 
 var port = process.env.PORT || 3020;
 app.listen(port, () => {

@@ -7,11 +7,10 @@ import base64
 
 import spotify
 import requests
-from socketIO_client import SocketIO, LoggingNamespace
 
 
 ENDPOINT = 'http://10.251.75.147:8083/device/next_track'
-socketIO = SocketIO('10.251.75.147', 8083, LoggingNamespace)
+SKIP_ENDPOINT = 'http://10.251.75.147:8083/device/check_skip'
 
 # Assuming a spotify_appkey.key in the current dir
 session = spotify.Session()
@@ -30,11 +29,6 @@ needs_track = threading.Event()
 needs_track.set()  # Start needing a new event
 
 
-def on_skip():
-    print 'skip!'
-    needs_track.set()
-
-
 def on_connection_state_updated(session):
     if session.connection.state is spotify.ConnectionState.LOGGED_IN:
         logged_in.set()
@@ -48,11 +42,31 @@ def on_end_of_track(self):
 session.on(
     spotify.SessionEvent.CONNECTION_STATE_UPDATED, on_connection_state_updated)
 session.on(spotify.SessionEvent.END_OF_TRACK, on_end_of_track)
-socketIO.on('skip', on_skip)
 
 session.login('theopolisme', base64.b64decode('QTczTnJlZXNl'))
 
 logged_in.wait()
+
+# FIXME, ya skipper, except you never will
+# Why isn't this just websockets like a sane person would use?
+# Perhaps due to sleep deprivation?????? WHAt issa realittay
+
+
+def set_interval(func, sec):
+    def func_wrapper():
+        set_interval(func, sec)
+        func()
+    t = threading.Timer(sec, func_wrapper)
+    t.start()
+    return t
+
+
+def check_skip():
+    skip = requests.post(SKIP_ENDPOINT).json()['skip']
+    if skip:
+        needs_track.set()
+
+set_interval(check_skip, 1)
 
 try:
     while True:
@@ -66,6 +80,7 @@ try:
                 session.player.play()
             else:
                 print 'Couldn\'t find a track, looking again'
+                session.player.pause()
                 needs_track.set()
 
 
